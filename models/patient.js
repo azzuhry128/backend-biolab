@@ -1,63 +1,70 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('sqlite::memory:');
+const { Model } = require("sequelize");
 
-const Patient = sequelize.define(
-'Patient',
-{
-    // Model attributes are defined here
-    id_patient: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-    autoIncrement: false
-    },
-    fullname_patient: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-        len: [1, 64]
+module.exports = (sequelize, DataTypes) => {
+  class Patient extends Model {
+    static associate(models) {
+      // define association here
     }
+  }
+  Patient.init(
+    {
+      fullname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Fullname cannot be null",
+          },
+          notEmpty: {
+            msg: "Fullname cannot be empty",
+          },
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Email cannot be null",
+          },
+          notEmpty: {
+            msg: "Email cannot be empty",
+          },
+          isEmail: {
+            msg: "Must be a valid email address",
+          },
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Password cannot be null",
+          },
+          notEmpty: {
+            msg: "Password cannot be empty",
+          },
+        },
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Phone number cannot be null",
+          },
+          notEmpty: {
+            msg: "Phone number cannot be empty",
+          },
+        },
+      },
     },
-    email_patient: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-        len: [1, 64],
-        isEmail: true
+    {
+      sequelize,
+      modelName: "Patient",
     }
-    },
-    password_patient: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-        len: [1, 16]
-    }
-    },
-    phone_number_patient: {
-    type: DataTypes.STRING,
-    allowNull: true
-    },
-    address_patient: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    validate: {
-        len: [1, 64]
-    }
-    },
-    geolocation_patient: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    validate: {
-        len: [1,16]
-    }
-    },
-},
-{
-    // Other model options go here  
-    sequelize,
-    modelName: 'Patient',
-    tableName: 'Patients',
-    timestamps: true
-});
+  );
 
-// `sequelize.define` also returns the model
-console.log(Patient === sequelize.models.Patient); // true
+  return Patient;
+};
