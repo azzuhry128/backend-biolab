@@ -1,44 +1,50 @@
 const express = require("express");
 const {
-  getPatient,
   createPatient,
   updatePatient,
   deletePatient,
-  loginPatientController,
   resetPassword,
-  resetPasscode,
-  resetAccess,
   resetOTP,
   validateOTP,
+  loginPatient,
 } = require("../../controllers/patient/patient.controller.account");
+
 const {
   patientRequestLogger,
-  responseLogger,
 } = require("../../middleware/requestLogger.middleware");
-const { sendEmail } = require("../../middleware/email.middleware");
+
 const { auth } = require("../../middleware/auth.middleware");
 const router = express.Router();
 
 router.use(patientRequestLogger);
 // router.use(responseLogger)
 
-// routes for anything related to account
-router.get("/account", loginPatientController);
+// accounts
+router.get("/account", loginPatient);
+router.post("/account/create", createPatient);
+router.put("/account/update/:id", auth, updatePatient);
+router.delete("/account/delete/:id", auth, deletePatient);
 
-router.post("/account", createPatient);
+// location | not finished
+router.get("/account/location", auth);
+router.post("/account/location/create", auth);
+router.put("/account/location/update/:id", auth);
+router.delete("/account/location/delete/:id", auth);
 
-router.put("/account/:id", auth, updatePatient);
+// payment | not finished
+router.get("/account/payment", auth);
+router.post("/account/payment/create", auth);
+router.put("/account/payment/update/:id", auth);
+router.delete("/account/payment/delete/:id", auth);
 
-router.delete("/account/:id", auth, deletePatient);
-
+// password reset
 router.post("/account/reset/otp", auth, resetOTP);
-
 router.post("/account/reset/validate", auth, validateOTP);
-
 router.post("/account/reset/password/:id", auth, resetPassword);
 
-// routes for password resets
-
-// router.post("/tracking")
+// service | not finished
+router.get("/service/load", auth);
+router.get("/service/book", auth);
+router.get("/service/payment", auth);
 
 module.exports = router;

@@ -3,12 +3,12 @@ require("dotenv").config();
 const OTPAuth = require("otpauth");
 
 const { Patient } = require("../../models");
-const { Passcode } = require("../../models");
+const { PatientLocation } = require("../../models");
+const { PatientPayment } = require("../../models");
 
 const bcrypt = require("bcrypt");
 const emailjs = require("@emailjs/nodejs");
 const jwt = require("jsonwebtoken");
-const patient = require("../../models/patient");
 
 const emailServiceID = process.env.EMAIL_SERVICE_ID;
 const emailTemplateID = process.env.EMAIL_TEMPLATE_ID;
@@ -16,59 +16,69 @@ const emailPublicKey = process.env.EMAIL_PUBLIC_KEY;
 const emailPrivateKey = process.env.EMAIL_PRIVATE_KEY;
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const getPatient = async (req, res) => {
-  try {
-    const { fullname } = req.body;
-    const result = await Patient.findOne({ where: { fullname: fullname } });
-
-    if (result == null) {
-      console.log("patient not found");
-    }
-
-    return res.status(200).json(result);
-  } catch (err) {
-    console.log("error occurred:", err);
-  }
-};
-
-const loginPatientController = async (req, res) => {
-  const { fullname, password } = req.body;
+const loginPatient = async (req, res) => {
+  const { email, password } = req.body;
 
   try {
-    const account = await Patient.findOne({ where: { fullname: fullname } });
+    const account = await Patient.findOne({ where: { patient_email: email } });
 
     if (!account) {
-      return res.status(404).json({ message: "account not found" });
+      res.status(404).json({ message: "account not found" });
     }
 
-    const matchedPassword = await bcrypt.compare(password, account.password);
+    const matchedPassword = await bcrypt.compare(
+      password,
+      account.patient_password
+    );
 
     if (!matchedPassword) {
-      return res.status(401).json({ message: "Invalid password" });
+      res.status(401).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign({ id: account.id, fullname: fullname }, SECRET_KEY, {
-      expiresIn: "8h",
+    const token = jwt.sign(
+      { id_patient: account.id_patient, patient_name: account.patient_name },
+      SECRET_KEY,
+      {
+        expiresIn: "8h",
+      }
+    );
+
+    // patient location
+    const patientLocation = await PatientLocation.findAll({
+      where: { id_patient: account.id_patient },
     });
 
-    res.status(200).json({ message: "Login Successful", token: token });
+    // patient payment
+    const patientPayment = await PatientPayment.findAll({
+      where: { id_patient: account.id_patient },
+    });
+
+    const patientObject = {
+      information: account,
+      location: patientLocation,
+      payment: patientPayment,
+      token: token,
+    };
+
+    res
+      .status(200)
+      .json({ message: "Login Successful", patientData: patientObject });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error: error });
   }
 };
 
 const createPatient = async (req, res) => {
-  const { fullname, email, phone, password } = req.body;
+  const { name, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const result = await Patient.findOrCreate({
-      where: { fullname: fullname, email: email, phone: phone },
+      where: { patient_name: name, patient_email: email },
       defaults: {
-        fullname: fullname,
-        email: email,
-        phone: phone,
-        password: hashedPassword,
+        patient_name: name,
+        patient_email: email,
+        patient_password: hashedPassword,
       },
     });
 
@@ -193,8 +203,7 @@ const resetPassword = async (req, res) => {
 
 // end of password reset mechanism
 module.exports = {
-  getPatient,
-  loginPatientController,
+  loginPatient,
   createPatient,
   updatePatient,
   deletePatient,

@@ -8,6 +8,7 @@ const patientRoutes = require("./routes/patient/patient.account.routes.js");
 app.use(express.json());
 app.use("/", router);
 app.use("/patient", patientRoutes);
+app.use("/hospital", )
 
 router.get("/", (req, res) => {
   res.send("Hello world");
