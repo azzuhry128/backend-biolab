@@ -4,10 +4,10 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("Categories", {
       id_category: {
-        allowNull: false,
-        autoIncrement: false,
-        primaryKey: true,
         type: Sequelize.UUID,
+        defaultValue: Sequelize.literal("uuid_generate_v4()"),
+        primaryKey: true,
+
       },
       category_name: {
         type: Sequelize.STRING,
@@ -23,6 +23,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Visits");
+    await queryInterface.dropTable("Categories");
   },
 };

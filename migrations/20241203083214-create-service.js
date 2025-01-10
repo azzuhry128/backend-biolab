@@ -7,7 +7,8 @@ module.exports = {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.literal("uuid_generate_v4()")
       },
       id_hospital: {
         type: Sequelize.UUID,
@@ -15,6 +16,14 @@ module.exports = {
         references: {
           model: "HospitalAccounts",
           key:"id_hospital"
+        }
+      },
+      id_category: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: "Categories",
+          key:"id_category"
         }
       },
       service_name: {

@@ -9,16 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Service.belongsTo(models.HospitalAccounts, {
-        foreignKey: "id_category",
-        targetKey: "id_category",
-        as: "category_FK",
-      });
-      Service.belongsTo(models.Category, {
-        foreignKey: "id_category",
-        targetKey: "id_category",
-        as: "category_FK",
-      });
+      Service.belongsTo(models.Category, { foreignKey: "id_category" });
+      Service.belongsTo(models.HospitalAccount, { foreignKey: "id_hospital" });
     }
   }
   Service.init(
@@ -32,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
       id_hospital: { type: DataTypes.UUID, allowNull: false },
       id_category: { type: DataTypes.UUID, allowNull: false },
       service_name: { type: DataTypes.STRING, allowNull: false },
-      description_service: { type: DataTypes.STRING, allowNull: false },
-      fee_service: { type: DataTypes.STRING, allowNull: false },
+      service_description: { type: DataTypes.STRING, allowNull: false },
+      service_fee: { type: DataTypes.STRING, allowNull: false },
     },
     { sequelize, modelName: "Service", timestamps: true }
   );

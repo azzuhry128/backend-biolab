@@ -17,17 +17,17 @@ const emailPrivateKey = process.env.EMAIL_PRIVATE_KEY;
 const SECRET_KEY = process.env.SECRET_KEY;
 
 const loginPatient = async (req, res) => {
-  const { email, password } = req.body;
+  const { patientEmail, patientPassword } = req.body;
 
   try {
-    const account = await Patient.findOne({ where: { patient_email: email } });
+    const account = await Patient.findOne({ where: { patient_email: patientEmail } });
 
     if (!account) {
       res.status(404).json({ message: "account not found" });
     }
-
+    
     const matchedPassword = await bcrypt.compare(
-      password,
+      patientPassword,
       account.patient_password
     );
 
@@ -69,15 +69,16 @@ const loginPatient = async (req, res) => {
 };
 
 const createPatient = async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const { patientName, patientEmail, patientPassword } = req.body;
+  console.log(req.body);
+  const hashedPassword = await bcrypt.hash(patientPassword, 10);
 
   try {
     const result = await Patient.findOrCreate({
-      where: { patient_name: name, patient_email: email },
+      where: { patient_name: patientName, patient_email: patientEmail },
       defaults: {
-        patient_name: name,
-        patient_email: email,
+        patient_name: patientName,
+        patient_email: patientEmail,
         patient_password: hashedPassword,
       },
     });
@@ -111,7 +112,9 @@ const deletePatient = async (req, res) => {
     const result = await Patient.destroy({ where: { id: id } });
 
     return res.status(200).json({ message: "account deleted", target: result });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 };
 
 // beginning of password reset mechanism
@@ -156,7 +159,6 @@ const resetOTP = async (req, res) => {
     }
   );
 };
-
 const validateOTP = async (req, res) => {
   const { token, secret } = req.body;
   const decodedSecret = OTPAuth.Secret.fromBase32(secret);

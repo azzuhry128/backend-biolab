@@ -1,21 +1,20 @@
-"use strict";
+'use strict';
 /** @type {import('sequelize-cli').Migration} */
-"use strict";
-
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Visits", {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('NewVisits', {
       id_visit: {
         allowNull: false,
         autoIncrement: false,
         primaryKey: true,
         type: Sequelize.UUID,
+        defaultValue: Sequelize.literal("uuid_generate_v4()"),
       },
       id_patient: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Patient", // name of the referenced table
+          model: "Patients", // name of the referenced table
           key: "id_patient", // column in the referenced table
         },
       },
@@ -23,7 +22,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "Doctor", // name of the referenced table
+          model: "Doctors", // name of the referenced table
           key: "id_doctor", // column in the referenced table
         },
       },
@@ -31,7 +30,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: "HospitalAccount", // name of the referenced table
+          model: "HospitalAccounts", // name of the referenced table
           key: "id_hospital", // column in the referenced table
         },
       },
@@ -47,14 +46,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      rating_visit: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      score_visit: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -67,8 +58,7 @@ module.exports = {
       },
     });
   },
-
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("visits");
-  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('NewVisits');
+  }
 };
